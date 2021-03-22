@@ -1,7 +1,6 @@
 'use strict';
 
 const express     = require('express');
-const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
 require('dotenv').config();
@@ -9,6 +8,18 @@ require('dotenv').config();
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
+
+const mongoose = require("mongoose");
+
+mongoose
+  .connect(process.env.DB, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log("database is up and running..."))
+  .catch(err => console.error(err));
 
 let app = express();
 
@@ -18,8 +29,8 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //Sample front-end
 app.route('/:project/')
@@ -36,9 +47,9 @@ app.route('/')
 //For FCC testing purposes
 fccTestingRoutes(app);
 
-//Routing for API 
-apiRoutes(app);  
-    
+//Routing for API
+apiRoutes(app);
+
 //404 Not Found Middleware
 app.use(function(req, res, next) {
   res.status(404)
